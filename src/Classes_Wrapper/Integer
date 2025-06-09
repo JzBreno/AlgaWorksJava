@@ -1,0 +1,26 @@
+| Método                                  | Descrição                                                               |
+| --------------------------------------- | ----------------------------------------------------------------------- |
+| `Integer.parseInt(String s)`            | Converte uma `String` para `int`.                                       |
+| `Integer.parseInt(String s, int radix)` | Converte uma `String` para `int` com base numérica (ex: binário, hexa). |
+| `Integer.valueOf(String s)`             | Retorna um `Integer` a partir de uma `String`.                          |
+| `Integer.valueOf(int i)`                | Retorna um `Integer` (wrapper) a partir de um `int`.                    |
+| `Integer.toString(int i)`               | Converte um `int` para `String`.                                        |
+| `Integer.toBinaryString(int i)`         | Converte `int` para representação binária (`String`).                   |
+| `Integer.toHexString(int i)`            | Converte `int` para hexadecimal.                                        |
+| `Integer.toOctalString(int i)`          | Converte `int` para octal.                                              |
+| `Integer.compare(int x, int y)`         | Compara dois `int`. Retorna -1, 0 ou 1.                                 |
+| `Integer.max(int a, int b)`             | Retorna o maior entre dois `int`.                                       |
+| `Integer.min(int a, int b)`             | Retorna o menor entre dois `int`.                                       |
+| `Integer.sum(int a, int b)`             | Retorna a soma de dois `int`.                                           |
+| `Integer.reverse(int i)`                | Inverte os bits de um número.                                           |
+| `Integer.bitCount(int i)`               | Conta o número de bits "1" em um `int`.                                 |
+| `Integer.highestOneBit(int i)`          | Retorna o bit mais significativo que está "1".                          |
+| `Integer.lowestOneBit(int i)`           | Retorna o bit menos significativo que está "1".                         |
+
+| Método                       | Descrição                                  |
+| ---------------------------- | ------------------------------------------ |
+| `intValue()`                 | Retorna o valor primitivo `int`.           |
+| `compareTo(Integer another)` | Compara este objeto com outro `Integer`.   |
+| `equals(Object obj)`         | Verifica se dois `Integer` são iguais.     |
+| `hashCode()`                 | Retorna o hash do valor.                   |
+| `toString()`                 | Retorna a representação `String` do valor. |

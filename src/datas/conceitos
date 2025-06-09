@@ -1,0 +1,16 @@
+data-hora-local
+armazenada sem fuso horario
+
+data-hora-global
+armazena fuso horario
+
+duração
+tempo entre duas horas
+
+
+Tipos de datas
+
+LocalDate = armazena apenas dia/mes/ano sendo no formato aaaa/mm/dd
+LocalDateTime = armazena dia-mes-ano hh:mm:ss
+
+ChronoUnit tem varios metodos de comparação de datas e tempos

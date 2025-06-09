@@ -1,0 +1,206 @@
+## 1  O que são **classes wrapper**
+
+* **“Encaixotam”** (wrap) tipos primitivos para que se comportem como objetos.
+* Permitem:
+
+  * guardar valores primitivos em coleções genéricas (`List<Integer>` etc.);
+  * usar métodos úteis (conversão, comparação, bit-twiddling, análise de texto);
+  * representar ausência de valor com `null`;
+  * trabalhar com APIs que exigem objetos (Reflection, Streams, etc.).
+
+## 2  Autoboxing / Unboxing
+
+| Atribuição              | O que acontece | Exemplo                                             |
+| ----------------------- | -------------- | --------------------------------------------------- |
+| **Primitivo ➜ Wrapper** | autoboxing     | `Integer x = 10;`  // 10 (`int`) vira `Integer(10)` |
+| **Wrapper ➜ Primitivo** | unboxing       | `int y = x;`       // `x.intValue()` chamado        |
+
+Java 8 faz isso de forma automática, mas continua havendo custo de criação de objetos e risco de `NullPointerException` ao desempacotar valores nulos.
+
+## 3  Panorama rápido dos wrappers
+
+| Primitivo | Wrapper     | Bits | Constantes úteis                 |
+| --------- | ----------- | ---- | -------------------------------- |
+| `boolean` | `Boolean`   | 1    | `TRUE`, `FALSE`                  |
+| `char`    | `Character` | 16   | `MIN_VALUE`, `MAX_VALUE`         |
+| `byte`    | `Byte`      | 8    | `MIN_VALUE`, `MAX_VALUE`, `SIZE` |
+| `short`   | `Short`     | 16   | idem                             |
+| `int`     | `Integer`   | 32   | idem + `BYTES`                   |
+| `long`    | `Long`      | 64   | idem                             |
+| `float`   | `Float`     | 32   | `NaN`, `POSITIVE_INFINITY` …     |
+| `double`  | `Double`    | 64   | idem                             |
+| —         | `Void`¹     | —    | —                                |
+
+¹ `Void` é usado apenas em Reflection para indicar “nenhum tipo de retorno”.
+
+---
+
+A seguir, um **guia prático** de métodos realmente usados no dia-a-dia. (Todos herdam `equals`, `hashCode`, `toString` e `compareTo`.)
+
+### 4  Boolean
+
+| Tipo                                       | O que faz                            | Exemplo                              |                                        |
+| ------------------------------------------ | ------------------------------------ | ------------------------------------ | -------------------------------------- |
+| \`static Boolean valueOf(boolean           | String)\`                            | Converte primit. ou texto (`"true"`) | `Boolean b = Boolean.valueOf("true");` |
+| `static boolean parseBoolean(String)`      | `"true"` → `true` (case-insensitive) |                                      |                                        |
+| `static int compare(boolean x, boolean y)` | -1 / 0 / 1                           |                                      |                                        |
+| `boolean booleanValue()`                   | Unboxing manual                      |                                      |                                        |
+
+**Dica:** Use `Boolean.TRUE.equals(obj)` para evitar `NullPointerException`.
+
+---
+
+### 5  Character
+
+| Mais usados                                                         | Exemplo                  |
+| ------------------------------------------------------------------- | ------------------------ |
+| `isDigit`, `isLetter`, `isWhitespace`, `isUpperCase`, `isLowerCase` | `Character.isDigit('7')` |
+| `toUpperCase`, `toLowerCase`                                        |                          |
+| `charValue()`                                                       | unboxing                 |
+
+```java
+char ch = 'á';
+if (Character.isLetter(ch)) {
+    System.out.println(Character.toUpperCase(ch)); // Á
+}
+```
+
+---
+
+### 6  Byte & Short (conceitos idênticos)
+
+Principais estáticos:
+
+```
+parseByte(String s)         // "7F" com radix 16 → 127
+valueOf(String s[, radix])
+toString(byte b)
+compare(byte a, byte b)
+```
+
+Instância: `byteValue()`, `shortValue()`, `intValue()` (upcast seguro).
+
+---
+
+### 7  Integer (32 bits)
+
+*Já vimos, mas aqui vai o “kit básico” que de fato aparece no código-fonte.*
+
+| Categoria  | Métodos mais úteis                                                         |
+| ---------- | -------------------------------------------------------------------------- |
+| Conversão  | `parseInt`, `valueOf`, `toString`, `toHexString`, `toBinaryString`         |
+| Comparação | `compare`, `max`, `min`                                                    |
+| Bitwise    | `bitCount`, `reverse`, `highestOneBit`, `lowestOneBit`, `rotateLeft/Right` |
+| Matemática | `sum`, `divideUnsigned`, `compareUnsigned`                                 |
+
+```java
+int n = Integer.parseInt("FF", 16);      // 255
+String bin = Integer.toBinaryString(10); // "1010"
+```
+
+---
+
+### 8  Long (64 bits)
+
+Mesmo conjunto do `Integer`, acrescido de métodos *unsigned* (`parseUnsignedLong`, `toUnsignedString`) — úteis para logs ou protocolos binários.
+
+---
+
+### 9  Float & Double
+
+| Tipo                           | Exemplo prático                                      |
+| ------------------------------ | ---------------------------------------------------- |
+| `parseFloat`, `parseDouble`    | `double d = Double.parseDouble("3.14");`             |
+| `isNaN`, `isInfinite`          | checar resultados de divisão por zero etc.           |
+| `compare`, `sum`, `max`, `min` | ordenação, streams                                   |
+| Constantes                     | `Double.NaN`, `Double.MAX_VALUE`, `Float.MIN_NORMAL` |
+
+```java
+double a = 1.0 / 0.0;
+if (Double.isInfinite(a)) System.out.println("Infinito!");
+```
+
+---
+
+### 10  Aplicando no seu trabalho
+
+1. **Coleções Genéricas**
+
+   ```java
+   List<Integer> ids = Arrays.asList(1, 2, 3); // precisa de wrapper
+   ```
+
+2. **Streams & Lambdas**
+
+   ```java
+   int soma = ids.stream().mapToInt(Integer::intValue).sum();
+   ```
+
+3. **Caches de valores pequenos**
+   `Integer.valueOf` reutiliza objetos entre –128 e 127. Prefira a esse invés de `new Integer(...)`.
+
+4. **Evite Boxings desnecessários**
+
+   ```java
+   // ruim: cria Integer a cada loop
+   for (int i = 0; i < 1_000_000; i++) list.add(i);
+   // melhor: List<IntStream> ou primit. array
+   ```
+
+5. **Cuidado com `==`**
+   Dois wrappers podem apontar para objetos distintos: use `equals`.
+
+```java
+Integer a = 128, b = 128;
+System.out.println(a == b);      // false
+System.out.println(a.equals(b)); // true
+```
+
+6. **Null-safety**
+   Nunca desempacote sem checar `null`:
+
+   ```java
+   Integer qtd = buscaEstoque(id);
+   int q = qtd != null ? qtd : 0;
+   ```
+
+---
+
+### 11  Exemplo completo reunindo tudo
+
+```java
+public class WrappersDemo {
+    static void imprimeTipo(Object obj) {
+        System.out.printf("%s -> %s%n", obj, obj.getClass().getSimpleName());
+    }
+    public static void main(String[] args) {
+        imprimeTipo(10);                  // Integer (autobox)
+        imprimeTipo(10L);                 // Long
+        imprimeTipo(3.14);                // Double
+        imprimeTipo('A');                 // Character
+        imprimeTipo(true);                // Boolean
+
+        int bin = Integer.parseInt("1010", 2);
+        System.out.println("Binário 1010 = " + bin);
+
+        double div = 1.0 / 0.0;
+        if (Double.isInfinite(div)) System.out.println("∞ detectado");
+    }
+}
+```
+
+Compile com **Java 8** (como você usa) e rode: todos os conceitos acima aparecem em ação.
+
+---
+
+### 12  Para estudar intensamente
+
+1. Leia as **JavaDocs** de cada classe (`java.lang.*`).
+2. Resolva exercícios que forcem:
+
+   * conversões entre bases numéricas;
+   * uso de `Character` para validar senhas;
+   * tratamento de `null` em coleções de wrappers.
+3. Analise *autoboxing* no byte-code com `javap -c` para entender o custo real.
+
+Com esse material você tem um guia sólido para dominar todas as classes wrapper e aplicá-las com segurança e eficiência no seu dia-a-dia Java. Bons estudos!
